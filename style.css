@@ -1,3 +1,7 @@
+html {
+  color-scheme: light dark;
+}
+
 body {
   /* Set line height to 1.5 times the font size
        and use the OS’s UI font as the website font
@@ -13,7 +17,7 @@ img {
   max-width: 100%;
 }
 
-nav ul li {
+/* nav ul li {
   display: contents;
   flex: 1;
 }
@@ -37,12 +41,30 @@ nav {
   border-bottom-style: solid;
   border-bottom-color: oklch(80% 3% 200);
   margin-bottom: 1em;
+} */
+
+nav a {
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+  text-align: center;
+  padding: 0.5em;
+  font-weight: bold;
+}
+
+nav {
+  display: flex;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  --border-color: oklch(50% 10% 200 / 40%);
+  border-bottom-color: var(--border-color);
+  margin-bottom: 1em;
 }
 
 .current {
   border-bottom-width: 0.4em;
   border-bottom-style: solid;
-  border-bottom-color: oklch(80% 3% 200);
+  border-bottom-color: var(--border-color);
   padding-bottom: 0.1em;
 }
 
@@ -50,8 +72,8 @@ nav {
   --color-accent: oklch(60% 15% 225); 
 }
 
-nav ul li a:hover {
-  background-color: oklch(from var(--color-accent) 95% 5% h); 
+nav a:hover {
+  background-color: light-dark(oklch(from var(--color-accent) 95% 5% h), color-mix(in oklch, var(--color-accent), canvas 85%));
   border-bottom-width: 0.4em;
   border-bottom-style: solid;
   border-bottom-color: var(--color-accent);
@@ -71,6 +93,7 @@ label {
   input,
   textarea {
     font: inherit;
+    font-size: 80%;
   }
 }
 
@@ -109,9 +132,9 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.5em;
   padding: 2em;
   margin: 0 auto; 
-  border: 1px solid #ddd; 
+  border: 1px solid light-dark(#ddd, #202020);
   border-radius: 8px; 
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+  box-shadow: 0 4px 6px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1)); 
 }
 
 .CV h2 {
@@ -137,3 +160,24 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: underline; /* Add underline on hover */
 }
 
+.color-scheme {
+  position: absolute;
+  top: 0.2rem; 
+  right: 1rem; 
+  font-size: 80%;
+  font-family: inherit;
+  padding: 0.5em;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+}
+
+.color-scheme select {
+  font-family: inherit; 
+  font-size: 80%;
+  border: 1px solid gray;
+  border-radius: 0.25rem;
+  padding: 0.1rem;
+}

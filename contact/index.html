@@ -5,22 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>contact</title>
     <link rel="stylesheet" type="text/css" href="../style.css">
+    <script src="../global.js" type="module"></script>
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="https://sainthades.github.io/dsc106_lab1/">Home</a></li>
-            <li><a href="https://sainthades.github.io/dsc106_lab1/projects/">Projects</a></li>
-            <li><a href="https://sainthades.github.io/dsc106_lab1/CV/">CV</a></li>
-            <li><a href="https://sainthades.github.io/dsc106_lab1/contact/" class="current">Contact</a></li>
-        </ul>
-    </nav>
     <h1>Contact</h1>
-    <form action="mailto:riling@ucsd.edu" method="POST" enctype="text/plain">
-        <label for="email">Email:<input id="email" name="email" type="email"></label>
+    <form action="mailto:riling@ucsd.edu" class="contact">
         <label for="subject">Subject:<input id="subject" name="subject"></label>
         <label for="body">Body:<textarea id="body" name="body"></textarea></label>
-        <button>Submit</button>
+        <button type="submit">Submit</button>
     </form>
 </body>
 </html>
