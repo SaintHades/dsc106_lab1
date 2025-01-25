@@ -68,19 +68,16 @@ if ('colorScheme' in localStorage) {
 }
 
 const contact = document.querySelector("form.contact");
-console.log(contact.action, 1);
 contact?.addEventListener("submit", function (event) {
     event.preventDefault();
     let data = new FormData(contact);
     let url = contact.action + "?";
-    console.log(url);
     for (let [name, value] of data) {
         console.log(name, value);
         url += `${encodeURIComponent(name)}=${encodeURIComponent(value)}&`;
     }
     url = url.slice(0, -1);
-    console.log(url +"?");
 
-    location.href = url;
+    location.href = url +"?";
 
 });
