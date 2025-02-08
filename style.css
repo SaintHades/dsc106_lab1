@@ -17,32 +17,6 @@ img {
   max-width: 100%;
 }
 
-/* nav ul li {
-  display: contents;
-  flex: 1;
-}
-
-nav ul{
-  display: flex;
-  margin-bottom: 0.0em;
-}
-
-nav ul li a {
-  flex: 1;
-  text-decoration: none;
-  color: inherit;
-  text-align: center;
-  padding: 0.5em;
-  font-weight: bold;
-}
-
-nav {
-  border-bottom-width: 1px;
-  border-bottom-style: solid;
-  border-bottom-color: oklch(80% 3% 200);
-  margin-bottom: 1em;
-} */
-
 nav a {
   flex: 1;
   text-decoration: none;
@@ -112,12 +86,26 @@ button {
 .projects article {
   display: grid;
   grid-template-rows: subgrid;
-  grid-row: span 3;
-  gap: 1em;
+  grid-row: span 4;
+  gap: 0.5em;
+}
+
+.projects article #year {
+  margin-top: 0;
+  padding: 0;
+  font-family: 'Times New Roman', Times, serif;
+  font-variant-numeric: oldstyle-nums;
+  color: gray;
+}
+
+.projects article #summary {
+  margin-bottom: 0;
+  margin-top: 0.5;
+  padding: 0;
 }
 
 .projects article h2 {
-  margin: 0;
+  margin-bottom: 0.5;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -208,3 +196,111 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 1.5rem; 
   font-weight: bold; /
 }
+
+#projects-pie-plot {
+  max-width: 20em;
+  margin-block: 2em;
+
+  overflow: visible;
+}
+
+
+.container {
+  display: flex; 
+  align-items: center; 
+  gap: 1.5em; 
+  justify-content: center; 
+  padding: 1em;
+  /* max-width: 600px;  */
+  margin: 0 auto; 
+}
+
+.legend {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(auto-fill, minmax(9em, 1fr));
+  gap: 8px; 
+  padding: 1em;
+  margin-top: 10px;
+  border: 1px solid light-dark(#ddd, #202020);
+  border-radius: 8px; 
+  box-shadow: 0 4px 6px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  /* padding: 4px; */
+}
+
+/* 颜色样本 */
+.legend .swatch {
+  width: 16px;
+  height: 16px;
+  background-color: var(--color); 
+  display: inline-block;
+  border-radius: 50%; 
+  border: 1px solid #ccc;
+}
+
+/* 图例文本中的强调值 */
+.legend li em {
+  font-style: normal;
+  color: #666;
+  margin-left: 4px;
+}
+
+svg {
+  /* flex-shrink: 0;  */
+  max-width: 30ch; 
+}
+
+@media (max-width: 50ch) {
+  .container {
+      flex-direction: column; 
+      align-items: center;
+  }
+  .legend {
+      width: 100%;
+      text-align: left;
+  }
+}
+
+.searchBar {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  border: 1px solid light-dark(#ddd, #202020);
+  border-radius: 5px;
+  box-shadow: 0 2px 4px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+  
+}
+
+&:has(path:hover) {
+  path:not(:hover) {
+    opacity: 0.5;
+  }
+}
+
+path {
+  transition: 300ms;
+  cursor: pointer;
+}
+
+.legend li {
+  cursor: pointer;
+}
+
+.selected {
+  --color: oklch(from var(--color-accent) 45% 25% h) !important;
+
+  &:is(path) {
+    fill: var(--color);
+  }
+
+}
+
