@@ -51,36 +51,27 @@ async function loadProjects() {
             });
             selected.filtered = filteredProjects;
             
+            let filteredProjectsByYear = selected.filteredByYear.filter((project) => {
+                let values = Object.values(project).join('\n').toLowerCase();
+                return values.includes(query.toLowerCase());
+            });
+            
+            renderProjects(filteredProjectsByYear, projectsContainer, 'h2');
+            renderPieChart(selected);
+            
+            let svg = d3.select('svg');
+            let legend = d3.select('.legend');
+            svg
+                .selectAll('path')
+                .attr('class', (_, idx) => (
+                    (idx === selected.selectedIndex ? 'selected' : '')
+                ));
+            legend
+                .selectAll('li')
+                .attr('class', (_, idx) => (
+                    (idx === selected.selectedIndex ? 'selected' : '')
+                ));
 
-            // if (selected.selectedIndex === -1) {
-            //     renderProjects(selected.filtered, projectsContainer, 'h2');
-            //     renderPieChart(selected);
-                
-            // } else {
-                let filteredProjectsByYear = selected.filteredByYear.filter((project) => {
-                    let values = Object.values(project).join('\n').toLowerCase();
-                    return values.includes(query.toLowerCase());
-                });
-                
-                renderProjects(filteredProjectsByYear, projectsContainer, 'h2');
-                renderPieChart(selected);
-                let svg = d3.select('svg');
-                let legend = d3.select('.legend');
-                svg
-                    .selectAll('path')
-                    .attr('class', (_, idx) => (
-                        (idx === selected.selectedIndex ? 'selected' : '')
-                    ));
-                legend
-                    .selectAll('li')
-                    .attr('class', (_, idx) => (
-                        (idx === selected.selectedIndex ? 'selected' : '')
-                    ));
-            // }
-
-            // TODO: render updated projects!
-            // renderProjects(filteredProjects, projectsContainer, 'h2');
-            // renderPieChart(filteredProjects);
         });
 
 
