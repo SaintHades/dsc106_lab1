@@ -27,8 +27,6 @@ async function loadProjects() {
             console.warn('Warning: No element with class "projects-title" found.');
         }
 
-        
-
         let query = '';
         let selected = {
             selectedIndex: -1,
@@ -58,7 +56,7 @@ async function loadProjects() {
             
             renderProjects(filteredProjectsByYear, projectsContainer, 'h2');
             renderPieChart(selected);
-            
+
             let svg = d3.select('svg');
             let legend = d3.select('.legend');
             svg
