@@ -9,6 +9,7 @@ let pages = [
     { url: 'projects/', title: 'Porjects' },
     { url: 'CV/', title: 'CV' },
     { url: 'contact/', title: 'Contact' },
+    { url: 'meta/', title: 'Meta' },
     { url: 'https://github.com/SaintHades', title: 'Github' },
 ];
 
@@ -39,7 +40,7 @@ document.body.insertAdjacentHTML(
     <label class="color-scheme">
         Theme:
         <select>
-            <option value="light dark" selected>Automatic (${currentTheme})</option>
+            <option value="light dark" selected>Automatic (${currentTheme.charAt(0).toUpperCase() + currentTheme.slice(1)})</option>
             <option value="light">Light</option>
             <option value="dark">Dark</option>
         </select>
