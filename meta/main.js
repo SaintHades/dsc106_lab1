@@ -79,17 +79,17 @@ function processCommits() {
           totalLines: lines.length,
         };
   
-        Object.defineProperty(ret, 'lines', {
-          value: lines,
-          // What other options do we need to set?
-          // Hint: look up configurable, writable, and enumerable
-          configurable: false,
-          writable: false,
-          enumerable: false,
-        });
-  
-        return ret;
+    Object.defineProperty(ret, 'lines', {
+      value: lines,
+      // What other options do we need to set?
+      // Hint: look up configurable, writable, and enumerable
+      configurable: false,
+      writable: false,
+      enumerable: false,
     });
+
+    return ret;
+  });
 }
 
 function displayStats() {
@@ -452,8 +452,10 @@ function renderItems(startIndex) {
   
   updateScatterplot(newCommitSlice);
 
+  let sortedCommits = d3.sort(commits, (a, b) => b.datetime - a.datetime);
+
   itemsContainer.selectAll('div')
-    .data(commits)
+    .data(sortedCommits)
     .enter()
     .append('div')
     .attr('class', 'item')
@@ -500,9 +502,11 @@ function renderFileItems(startIndex) {
   const filteredCommits = commits.filter(d => d.datetime <= maxTime && d.datetime >= minTime);
 
   displayCommitFiles(filteredCommits);
-  
+
+  let sortedCommits = d3.sort(commits, (a, b) => b.datetime - a.datetime);
+
   fileItemsContainer.selectAll('div')
-    .data(commits)
+    .data(sortedCommits)
     .enter()
     .append('div')
     .attr('class', 'item')
