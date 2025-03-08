@@ -3,9 +3,6 @@ html {
 }
 
 body {
-  /* Set line height to 1.5 times the font size
-       and use the OS’s UI font as the website font
-     */
   font: 100%/1.5 system-ui;
   max-width: 100ch;
   margin-inline: auto;
@@ -246,7 +243,6 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid #ccc;
 }
 
-/* 图例文本中的强调值 */
 .legend li em {
   font-style: normal;
   color: #666;
@@ -254,7 +250,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .container svg {
-  /* flex-shrink: 0;  */
   max-width: 30ch; 
 }
 
@@ -354,4 +349,170 @@ circle.selected {
   stroke-opacity: 0.7;
   stroke-dasharray: 5 3;
   animation: marching-ants 2s linear infinite;
+}
+
+circle {
+  transition: all 200ms, r calc(var(--r) * 100ms);
+  @starting-style {
+    r: 0;
+  }
+}
+
+#filter-ui {
+  /* Use a flex container to place items in a single row */
+  display: flex;
+  align-items: center;
+  margin-bottom: 1em; /* Spacing below the filter UI */
+  gap: 1em;          /* Space between label, slider, and time */
+}
+
+/* The slider stretches to fill remaining space */
+#filter-ui input[type="range"] {
+  flex: 1;
+  /* Optional margin for a cleaner look around the slider */
+  margin: 0 1em;
+}
+
+/* Push the time element to the far right */
+#filter-ui time {
+  margin-left: auto;
+  white-space: nowrap; /* Prevent line-breaks in the date/time text */
+}
+
+/* Optionally style the label */
+#filter-ui label {
+  white-space: nowrap; /* Keep text on one line */
+  font-weight: bold;   /* Example styling */
+}
+
+.line {
+  display: flex;
+  width: 0.5em;
+  aspect-ratio: 1;
+  background: steelblue;
+  border-radius: 50%;
+}
+
+.files dd {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  align-content: start;
+  gap: 0.15em;
+  padding-top: 0.6em;
+  margin-left: 0;
+}
+
+.files dt small {
+  display: block;      /* Ensure <small> appears on a new line */
+  font-size: 0.75rem;  /* Smaller font size */
+  color: #777;         /* Light gray color */
+  opacity: 0.8;        /* Slightly transparent */
+}
+
+:global(body) {
+  max-width: min(120ch, 80vw);
+}
+
+#scrollytelling {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+}
+
+/* feel free to play with this to make your scrolly more seemless with your plot */
+#scroll-container {
+  grid-column: 1;
+  position: relative;
+  width: 95%;
+  height: 350px;
+  overflow-y: scroll;
+  border: 1px solid #ccc;
+  margin-bottom: 50px;
+}
+
+#chart {
+  grid-column: 2;
+}
+
+#spacer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: none;
+  pointer-events: none;
+}
+
+#items-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.item {
+  height: 30px;
+  padding: 10px;
+  box-sizing: border-box;
+  border-bottom: 2px solid #eee;
+}
+
+#file-scrollytelling {
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+  display: grid;
+  grid-template-columns: subgrid;
+}
+
+#file-scroll-container {
+  grid-column: 2;
+  position: relative;
+  width: 95%;
+  height: 350px;
+  overflow-y: scroll;
+  border: 1px solid #ccc;
+  margin-bottom: 50px;
+}
+
+#file-chart {
+  grid-column: 1;
+}
+
+#file-spacer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: none;
+  pointer-events: none;
+}
+
+#file-items-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+dl.info.tooltip {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5em;
+  margin: 0;
+  padding: 0.5em;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  position: fixed;
+  top: 1em;
+  left: 1em;
+  z-index: 1000; /* 确保 tooltip 显示在最上层 */
+  transition-duration: 500ms;
+  transition-property: opacity, visibility;
+}
+
+dl.info.tooltip[hidden]:not(:hover, :focus-within) {
+  opacity: 0;
+  visibility: hidden;
 }

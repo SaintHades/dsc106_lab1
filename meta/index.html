@@ -6,14 +6,24 @@
     <title>Document</title>
     <link rel="stylesheet" type="text/css" href="../style.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="../global.js" type="module"></script>
     <script src="main.js"></script>
 </head>
 <body>
-    <h2>Summary</h2>
+
+    <!-- <dl class="files"></dl> -->
+
     <div id="stats"></div>
 
     <h2>Commits by time of day</h2>
-    <div id="chart"></div>
+    <div id="scrollytelling">
+        <div id="scroll-container">
+            <div id="spacer"></div>
+            <div id="items-container"></div>
+        </div>
+        <!-- our old scatterplot div -->
+        <div id="chart"></div>
+    </div>
 
     <p id="selection-count">No commits selected</p>
     <dl id="commit-tooltip" class="info tooltip" hidden>
@@ -25,8 +35,16 @@
         <dt>Date</dt>
         <dd id="commit-date"></dd>
         
-        <!-- 可根据需要添加：Time、Author、Lines Edited -->
     </dl>
     <dl id="language-breakdown" class="stats"></dl>
+
+    <div id="file-scrollytelling">
+        <dl class="files"></dl>
+        <div id="file-scroll-container">
+            <div id="file-spacer"></div>
+            <div id="file-items-container"></div>
+        </div>
+
+    </div>
 </body>
 </html>

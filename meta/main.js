@@ -1,6 +1,15 @@
 let data = [];
 let xScale, yScale;
+let selectedCommits = [];
+let commitProgress = 100;
+let timeScale; 
+let commits = [];
 
+let ITEM_HEIGHT = 50; 
+let VISIBLE_COUNT = 4;
+
+let FILE_ITEM_HEIGHT = 50;
+let FILE_VISIBLE_COUNT = 4;
 
 async function loadData() {
     data = await d3.csv('loc.csv', (row) => ({
@@ -12,11 +21,44 @@ async function loadData() {
       datetime: new Date(row.datetime),
     }));
     displayStats();
-    createScatterplot()
+    timeScale = d3.scaleTime()
+      .domain(d3.extent(commits, d => d.datetime))
+      .range([0, 100]);
+    createScatterplot();
   }
 
 document.addEventListener('DOMContentLoaded', async () => {
   await loadData();
+
+  scrollContainer = d3.select('#scroll-container');
+  spacer = d3.select('#spacer');
+  itemsContainer = d3.select('#items-container');
+  NUM_ITEMS = commits.length;
+  totalHeight = (NUM_ITEMS - 1) * ITEM_HEIGHT;
+  spacer.style('height', `${totalHeight}px`);
+
+  scrollContainer.on('scroll', () => {
+    const scrollTop = scrollContainer.property('scrollTop');
+    let startIndex = Math.floor(scrollTop / ITEM_HEIGHT);
+    startIndex = Math.max(0, Math.min(startIndex, commits.length - VISIBLE_COUNT));
+    renderItems(startIndex);
+  });
+
+  FILE_NUM_ITEMS = commits.length;
+  fileTotalHeight = (FILE_NUM_ITEMS - 1) * FILE_ITEM_HEIGHT;
+  fileScrollContainer = d3.select('#file-scroll-container');
+  fileSpacer = d3.select('#file-spacer');
+  fileItemsContainer = d3.select('#file-items-container');
+  fileSpacer.style('height', `${fileTotalHeight}px`);
+
+  fileScrollContainer.on('scroll', () => {
+    const scrollTop = fileScrollContainer.property('scrollTop');
+    let startIndex = Math.floor(scrollTop / FILE_ITEM_HEIGHT);
+    startIndex = Math.max(0, startIndex);
+    renderFileItems(startIndex);
+  });
+  renderItems(0);
+  renderFileItems(0);
 });
 
 function processCommits() {
@@ -124,10 +166,12 @@ function createScatterplot() {
       updateTooltipContent(commit);
       updateTooltipVisibility(true);
       updateTooltipPosition(event);
+      d3.select(event.currentTarget).classed('selected', isCommitSelected(commit));
     })
-    .on('mouseleave', () => {
+    .on('mouseleave', (event, commit) => {
       updateTooltipContent({});
       updateTooltipVisibility(false);
+      d3.select(event.currentTarget).classed('selected', false);
     });
 
     const usableArea = {
@@ -204,29 +248,26 @@ function brushSelector() {
   d3.select(svg).selectAll('.dots, .overlay ~ *').raise();
 }
 
-function brushed(event) {
-  console.log(event);
-}
-
 let brushSelection = null;
 
-function brushed(event) {
-  brushSelection = event.selection;
+function brushed(evt) {
+  brushSelection = evt.selection;
+  selectedCommits = !brushSelection
+    ? []
+    : commits.filter((commit) => {
+        const min = { x: brushSelection[0][0], y: brushSelection[0][1] };
+        const max = { x: brushSelection[1][0], y: brushSelection[1][1] };
+        const x = xScale(commit.datetime);
+        const y = yScale(commit.hourFrac);
+        return x >= min.x && x <= max.x && y >= min.y && y <= max.y;
+      });
   updateSelection();
   updateSelectionCount();
   updateLanguageBreakdown();
 }
 
 function isCommitSelected(commit) {
-  if (!brushSelection) {
-    return false;
-  }
-  // 使用全局 xScale 和 yScale 将 commit 数据映射到图形坐标
-  const x = xScale(commit.datetime);
-  const y = yScale(commit.hourFrac);
-  // brushSelection 格式为 [[x0, y0], [x1, y1]]
-  return x >= brushSelection[0][0] && x <= brushSelection[1][0] &&
-         y >= brushSelection[0][1] && y <= brushSelection[1][1];
+  return selectedCommits.includes(commit);
 }
 
 function updateSelection() {
@@ -281,4 +322,199 @@ function updateLanguageBreakdown() {
   }
 
   return breakdown;
+}
+
+
+function updateTimeDisplay() {
+  const timeSlider = document.getElementById('timeSlider');
+  commitProgress = Number(timeSlider.value);
+  
+  const commitMaxTime = timeScale.invert(commitProgress);
+  const selectedTimeElem = document.getElementById('selectedTime');
+  selectedTimeElem.textContent = commitMaxTime.toLocaleString("en-US", { dateStyle: "long", timeStyle: "short" });
+  
+  const filteredCommits = commits.filter(d => d.datetime <= commitMaxTime);
+  updateScatterplot(filteredCommits);
+  updateFilesVisualization(filteredCommits);
+}
+
+function updateScatterplot(filteredCommits) {
+  d3.select('svg').remove();
+
+  const width = 1000;
+  const height = 600;
+  const margin = { top: 10, right: 10, bottom: 30, left: 20 };
+
+  const svg = d3.select('#chart')
+    .append('svg')
+    .attr('viewBox', `0 0 ${width} ${height}`)
+    .style('overflow', 'visible');
+
+  xScale = d3.scaleTime()
+    .domain(d3.extent(filteredCommits, d => d.datetime))
+    .range([0, width])
+    .nice();
+
+  yScale = d3.scaleLinear().domain([0, 24]).range([height, 0]);
+
+  const dots = svg.append('g').attr('class', 'dots');
+
+  const [minLines, maxLines] = d3.extent(filteredCommits, d => d.totalLines);
+  const rScale = d3.scaleSqrt().domain([minLines, maxLines]).range([2, 30]);
+
+  dots.selectAll('circle')
+    .data(filteredCommits)
+    .join('circle')
+    .attr('cx', d => xScale(d.datetime))
+    .attr('cy', d => yScale(d.hourFrac))
+    .attr('r', d => rScale(d.totalLines))
+    .style('fill-opacity', 0.7)
+    .attr('fill', 'steelblue')
+    .on('mouseenter', (event, commit) => {
+      updateTooltipContent(commit);
+      updateTooltipVisibility(true);
+      updateTooltipPosition(event);
+      d3.select(event.currentTarget).classed('selected', isCommitSelected(commit));
+    })
+    .on('mouseleave', (event, commit) => {
+      updateTooltipContent({});
+      updateTooltipVisibility(false);
+      d3.select(event.currentTarget).classed('selected', false);
+    });
+
+  const usableArea = {
+    top: margin.top,
+    right: width - margin.right,
+    bottom: height - margin.bottom,
+    left: margin.left,
+    width: width - margin.left - margin.right,
+    height: height - margin.top - margin.bottom,
+  };
+
+  xScale.range([usableArea.left, usableArea.right]);
+  yScale.range([usableArea.bottom, usableArea.top]);
+
+  const xAxis = d3.axisBottom(xScale);
+  svg.append('g')
+    .attr('transform', `translate(0, ${usableArea.bottom})`)
+    .call(xAxis);
+
+  const yAxis = d3.axisLeft(yScale)
+    .tickFormat(d => String(d % 24).padStart(2, '0') + ':00');
+  svg.append('g')
+    .attr('transform', `translate(${usableArea.left}, 0)`)
+    .call(yAxis);
+
+  const gridlines = svg.append('g')
+    .attr('class', 'gridlines')
+    .attr('transform', `translate(${usableArea.left}, 0)`);
+  gridlines.call(d3.axisLeft(yScale).tickFormat('').tickSize(-usableArea.width));
+
+  brushSelector();
+}
+
+let fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
+
+function updateFilesVisualization(filteredCommits) {
+  let lines = filteredCommits.flatMap(d => d.lines);
+  
+  let files = d3.groups(lines, d => d.file)
+    .map(([name, lines]) => ({ name, lines }));
+  
+  files = d3.sort(files, d => -d.lines.length);
+  
+  const filesSelection = d3.select('.files');
+  filesSelection.selectAll('div').remove();
+  
+  let filesContainer = filesSelection
+    .selectAll('div')
+    .data(files)
+    .enter()
+    .append('div');
+  
+  filesContainer.append('dt')
+    .html(d => `<code>${d.name}</code><small>${d.lines.length} lines</small>`);
+  
+  let dd = filesContainer.append('dd');
+  
+  dd.selectAll('div')
+    .data(d => d.lines)
+    .enter()
+    .append('div')
+    .attr('class', 'line')
+    .style('background', d => fileTypeColors(d.type));
+}
+
+function renderItems(startIndex) {
+  itemsContainer.selectAll('div').remove();
+  const endIndex = Math.min(startIndex + VISIBLE_COUNT, commits.length);
+  let newCommitSlice = commits.slice(startIndex, endIndex);
+  
+  updateScatterplot(newCommitSlice);
+
+  itemsContainer.selectAll('div')
+    .data(commits)
+    .enter()
+    .append('div')
+    .attr('class', 'item')
+    .html((d, idx) => `
+      <p>
+        On ${d.datetime.toLocaleString("en-US", { dateStyle: "full", timeStyle: "short" })}, I made 
+        <a href="${d.url}" target="_blank">
+          ${idx > 0 ? 'another glorious commit' : 'my first commit, and it was glorious'}
+        </a>.
+        I edited ${d.totalLines} lines.
+      </p>
+    `)
+    .style('position', 'relative')
+    .style('top', (_, idx) => `${idx * ITEM_HEIGHT}px`)
+
+}
+
+function displayCommitFiles(filteredCommits) {
+  const lines = filteredCommits.flatMap((d) => d.lines);
+  let fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
+  let files = d3.groups(lines, (d) => d.file).map(([name, lines]) => {
+    return { name, lines };
+  });
+  files = d3.sort(files, (d) => -d.lines.length);
+  d3.select('.files').selectAll('div').remove();
+  let filesContainer = d3.select('.files').selectAll('div').data(files).enter().append('div');
+  filesContainer.append('dt').html(d => `<code>${d.name}</code><small>${d.lines.length} lines</small>`);
+  filesContainer.append('dd')
+                .selectAll('div')
+                .data(d => d.lines)
+                .enter()
+                .append('div')
+                .attr('class', 'line')
+                .style('background', d => fileTypeColors(d.type));
+}
+
+function renderFileItems(startIndex) {
+  fileItemsContainer.selectAll('div').remove();
+
+  const endIndex = Math.min(startIndex + VISIBLE_COUNT, commits.length);
+  let newCommitSlice = commits.slice(startIndex, endIndex);
+
+  let [minTime, maxTime] = d3.extent(newCommitSlice, d => d.datetime);
+  const filteredCommits = commits.filter(d => d.datetime <= maxTime && d.datetime >= minTime);
+
+  displayCommitFiles(filteredCommits);
+  
+  fileItemsContainer.selectAll('div')
+    .data(commits)
+    .enter()
+    .append('div')
+    .attr('class', 'item')
+    .html((d, idx) => `
+      <p>
+        On ${d.datetime.toLocaleString("en-US", { dateStyle: "full", timeStyle: "short" })}, I made 
+        <a href="${d.url}" target="_blank">
+          ${idx > 0 ? 'another glorious commit' : 'my first commit, and it was glorious'}
+        </a>.
+        I edited ${d.totalLines} lines.
+      </p>
+    `)
+    .style('position', 'relative')
+    .style('top', (_, idx) => `${idx * FILE_ITEM_HEIGHT}px`);
 }
